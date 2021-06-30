@@ -1,5 +1,4 @@
 package ejercicio1;
-
 public class Empleado {
     
     private long id;
