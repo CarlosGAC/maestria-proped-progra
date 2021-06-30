@@ -21,6 +21,7 @@ public class Menu {
                 opcion = Integer.parseInt(entrada.nextLine());
             }catch(NumberFormatException e) {
                 System.err.println("El valor ingresado no es un número");
+                continue;
             }
 
             if(opcion == 1) {
@@ -30,11 +31,15 @@ public class Menu {
                     System.err.println("\n" + e.getMessage());
                     System.err.println("ERROR: Favor de ingresar de nuevo los datos");
                 }
+            } else if(opcion == 2) {
+                System.out.println("Saliendo...");
+            } else {
+                System.err.println("La opcion " + opcion + " no existe");
             }
 
         }while(opcion != 2);
 
-        System.out.println("Saliendo...");
+        
     }
 
 
