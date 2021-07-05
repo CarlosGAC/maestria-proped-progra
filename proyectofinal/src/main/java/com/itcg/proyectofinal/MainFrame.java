@@ -182,7 +182,8 @@ public class MainFrame extends javax.swing.JFrame {
             
         java.awt.EventQueue.invokeLater(() -> {
             mf.setVisible(false);
-            new MainMenu().setVisible(true);
+            MainMenu mm = new MainMenu();
+            mm.setVisible(true);
             });
             
         } else {
