@@ -44,7 +44,9 @@ public class MainMenu extends javax.swing.JFrame {
     private static JSONObject database;
     private static final String FILENAME = "agenda.json";
     private static File agendaFile;
-    
+
+    private static long showContactID;
+
     private void clearAllFieldsFromAddContactForm() {
         nameField.setText("");
         addressField.setText("");
@@ -61,6 +63,7 @@ public class MainMenu extends javax.swing.JFrame {
         } catch (IOException e) {
             System.err.println("Ha ocurrido un error");
             System.err.println(e.getMessage());
+            JOptionPane.showMessageDialog(null, "No se pudo escribir en la base de datos", "Error de IO", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -104,7 +107,7 @@ public class MainMenu extends javax.swing.JFrame {
                 System.out.println("La Agenda ha sido creada en el archivo " + f.getAbsolutePath());
             } else {
                 if (!f.canRead() || !f.canWrite()) {
-                   System.out.println("Error: La aplicacion no tiene permisos de lectura o escritura");
+                    System.out.println("Error: La aplicacion no tiene permisos de lectura o escritura");
                 }
             }
         } catch (IOException e) {
@@ -114,42 +117,48 @@ public class MainMenu extends javax.swing.JFrame {
 
         return f;
     }
-    
+
     private List<Persona> getAllContacts() {
         List<Persona> personaList = new ArrayList<>();
-        
+
         JSONObject base = readFromDatabaseFile();
-        
-        JSONArray array = (JSONArray)base.get("entries");
+
+        JSONArray array = (JSONArray) base.get("entries");
         //System.out.println(array.size());
-        
+
         ListIterator li = array.listIterator();
-        
-        while(li.hasNext()) {
+
+        while (li.hasNext()) {
             Map m = (Map) li.next();
-            long mapId = (long)m.get("id");
-            String mapName = (String)m.get("name");
-            String mapAddress = (String)m.get("address");
-            String mapPhone = (String)m.get("phone");
-            String mapMail = (String)m.get("mail");
-            String mapBirthdayDay = (String)m.get("birthdayDay");
-            String mapBirthdayMonth = (String)m.get("birthdayMonth");
-            
+            long mapId = (long) m.get("id");
+            String mapName = (String) m.get("name");
+            String mapAddress = (String) m.get("address");
+            String mapPhone = (String) m.get("phone");
+            String mapMail = (String) m.get("mail");
+            String mapBirthdayDay = (String) m.get("birthdayDay");
+            String mapBirthdayMonth = (String) m.get("birthdayMonth");
+
             personaList.add(new Persona(mapId, mapName, mapAddress, mapPhone, mapMail, mapBirthdayDay, mapBirthdayMonth));
             //System.out.println(m.entrySet());
         }
         return personaList;
     }
-    
+
     private void setContactListToDatabaseModel(List<Persona> databaseModel) {
-        
+
         DefaultListModel<String> model = new DefaultListModel<>();
-        
+
         databaseModel.forEach(persona -> {
             model.addElement("ID:" + persona.getId() + "     Nombre:" + persona.getNombre());
         });
-        
+
         contactList.setModel(model);
+        if(contactList.getModel().getSize() == 0) {
+            contactList.setEnabled(false);
+        } else {
+            contactList.setEnabled(true);
+        }
+        
         contactList.repaint();
     }
 
@@ -194,13 +203,30 @@ public class MainMenu extends javax.swing.JFrame {
         jPanel9 = new javax.swing.JPanel();
         addNewContact = new javax.swing.JButton();
         showContactDialog = new javax.swing.JDialog();
+        jPanel12 = new javax.swing.JPanel();
+        title1 = new javax.swing.JLabel();
         jPanel10 = new javax.swing.JPanel();
-        jLabel4 = new javax.swing.JLabel();
-        jPanel11 = new javax.swing.JPanel();
-        showAddressField = new javax.swing.JTextField();
+        editContact = new javax.swing.JButton();
+        jPanel13 = new javax.swing.JPanel();
+        jPanel14 = new javax.swing.JPanel();
+        nameLabel1 = new javax.swing.JLabel();
         showNameField = new javax.swing.JTextField();
-        jLabel3 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
+        jPanel15 = new javax.swing.JPanel();
+        addressLabel1 = new javax.swing.JLabel();
+        showAddressField = new javax.swing.JTextField();
+        jPanel16 = new javax.swing.JPanel();
+        phoneLabel1 = new javax.swing.JLabel();
+        showPhoneField = new javax.swing.JTextField();
+        jPanel17 = new javax.swing.JPanel();
+        mailLabel1 = new javax.swing.JLabel();
+        showMailField = new javax.swing.JTextField();
+        jPanel18 = new javax.swing.JPanel();
+        birthdayLabel1 = new javax.swing.JLabel();
+        showBirthdayMonthField = new javax.swing.JComboBox<>();
+        showBirthdayDayField = new javax.swing.JComboBox<>();
+        jPanel19 = new javax.swing.JPanel();
+        acceptEditContact = new javax.swing.JButton();
+        deleteContact = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         addContact = new javax.swing.JButton();
@@ -347,76 +373,170 @@ public class MainMenu extends javax.swing.JFrame {
         );
         addContactDialogLayout.setVerticalGroup(
             addContactDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 355, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGroup(addContactDialogLayout.createSequentialGroup()
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 355, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(361, 361, 361))
         );
+
+        jPanel12.setBackground(new java.awt.Color(245, 245, 245));
+
+        title1.setFont(new java.awt.Font("Karla", 1, 48)); // NOI18N
+        title1.setForeground(new java.awt.Color(43, 57, 74));
+        title1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        title1.setText("Mostrar Contacto");
+        title1.setPreferredSize(new java.awt.Dimension(400, 90));
+        jPanel12.add(title1);
 
         jPanel10.setBackground(new java.awt.Color(245, 245, 245));
-        jPanel10.setLayout(new java.awt.BorderLayout());
+        jPanel10.setPreferredSize(new java.awt.Dimension(30, 100));
 
-        jLabel4.setBackground(new java.awt.Color(43, 57, 74));
-        jLabel4.setFont(new java.awt.Font("sansserif", 0, 48)); // NOI18N
-        jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel4.setText("Mostrar Contacto");
-        jPanel10.add(jLabel4, java.awt.BorderLayout.NORTH);
-
-        jPanel11.setBackground(new java.awt.Color(245, 245, 245));
-
-        showAddressField.setText("jTextField2");
-
-        showNameField.setText("jTextField1");
-
-        jLabel3.setText("Dirección:");
-
-        jLabel2.setText("Nombre:");
-
-        javax.swing.GroupLayout jPanel11Layout = new javax.swing.GroupLayout(jPanel11);
-        jPanel11.setLayout(jPanel11Layout);
-        jPanel11Layout.setHorizontalGroup(
-            jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 911, Short.MAX_VALUE)
-            .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(jPanel11Layout.createSequentialGroup()
-                    .addGap(321, 321, 321)
-                    .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addComponent(jLabel3)
-                        .addComponent(jLabel2))
-                    .addGap(18, 18, 18)
-                    .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addComponent(showNameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(showAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addContainerGap(428, Short.MAX_VALUE)))
+        javax.swing.GroupLayout jPanel10Layout = new javax.swing.GroupLayout(jPanel10);
+        jPanel10.setLayout(jPanel10Layout);
+        jPanel10Layout.setHorizontalGroup(
+            jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 30, Short.MAX_VALUE)
         );
-        jPanel11Layout.setVerticalGroup(
-            jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 360, Short.MAX_VALUE)
-            .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(jPanel11Layout.createSequentialGroup()
-                    .addGap(146, 146, 146)
-                    .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jLabel2)
-                        .addComponent(showNameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGap(18, 18, 18)
-                    .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jLabel3)
-                        .addComponent(showAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addContainerGap(146, Short.MAX_VALUE)))
+        jPanel10Layout.setVerticalGroup(
+            jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 100, Short.MAX_VALUE)
         );
 
-        jPanel10.add(jPanel11, java.awt.BorderLayout.SOUTH);
+        jPanel12.add(jPanel10);
+
+        editContact.setText("Editar");
+        editContact.setPreferredSize(new java.awt.Dimension(90, 50));
+        editContact.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                editContactActionPerformed(evt);
+            }
+        });
+        jPanel12.add(editContact);
+
+        jPanel13.setBackground(new java.awt.Color(245, 245, 245));
+        jPanel13.setLayout(new javax.swing.BoxLayout(jPanel13, javax.swing.BoxLayout.PAGE_AXIS));
+
+        jPanel14.setBackground(new java.awt.Color(245, 245, 245));
+
+        nameLabel1.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        nameLabel1.setLabelFor(nameField);
+        nameLabel1.setText("Nombre:");
+        nameLabel1.setPreferredSize(new java.awt.Dimension(100, 19));
+        jPanel14.add(nameLabel1);
+
+        showNameField.setEditable(false);
+        showNameField.setPreferredSize(new java.awt.Dimension(250, 25));
+        jPanel14.add(showNameField);
+
+        jPanel13.add(jPanel14);
+
+        jPanel15.setBackground(new java.awt.Color(245, 245, 245));
+
+        addressLabel1.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        addressLabel1.setLabelFor(phoneField);
+        addressLabel1.setText("Dirección:");
+        addressLabel1.setPreferredSize(new java.awt.Dimension(100, 19));
+        jPanel15.add(addressLabel1);
+
+        showAddressField.setEditable(false);
+        showAddressField.setPreferredSize(new java.awt.Dimension(250, 25));
+        showAddressField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                showAddressFieldActionPerformed(evt);
+            }
+        });
+        jPanel15.add(showAddressField);
+
+        jPanel13.add(jPanel15);
+
+        jPanel16.setBackground(new java.awt.Color(245, 245, 245));
+
+        phoneLabel1.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        phoneLabel1.setLabelFor(phoneField);
+        phoneLabel1.setText("Teléfono:");
+        phoneLabel1.setPreferredSize(new java.awt.Dimension(100, 19));
+        jPanel16.add(phoneLabel1);
+
+        showPhoneField.setEditable(false);
+        showPhoneField.setPreferredSize(new java.awt.Dimension(250, 25));
+        jPanel16.add(showPhoneField);
+
+        jPanel13.add(jPanel16);
+
+        jPanel17.setBackground(new java.awt.Color(245, 245, 245));
+
+        mailLabel1.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        mailLabel1.setLabelFor(mailField);
+        mailLabel1.setText("Mail:");
+        mailLabel1.setPreferredSize(new java.awt.Dimension(100, 19));
+        jPanel17.add(mailLabel1);
+
+        showMailField.setEditable(false);
+        showMailField.setPreferredSize(new java.awt.Dimension(250, 25));
+        showMailField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                showMailFieldActionPerformed(evt);
+            }
+        });
+        jPanel17.add(showMailField);
+
+        jPanel13.add(jPanel17);
+
+        jPanel18.setBackground(new java.awt.Color(245, 245, 245));
+
+        birthdayLabel1.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        birthdayLabel1.setLabelFor(birthdayDayField);
+        birthdayLabel1.setText("Cumpleaños:");
+        birthdayLabel1.setPreferredSize(new java.awt.Dimension(100, 19));
+        jPanel18.add(birthdayLabel1);
+
+        showBirthdayMonthField.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre" }));
+        showBirthdayMonthField.setPreferredSize(new java.awt.Dimension(150, 25));
+        showBirthdayMonthField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                showBirthdayMonthFieldActionPerformed(evt);
+            }
+        });
+        jPanel18.add(showBirthdayMonthField);
+
+        showBirthdayDayField.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31" }));
+        showBirthdayDayField.setPreferredSize(new java.awt.Dimension(100, 25));
+        jPanel18.add(showBirthdayDayField);
+
+        jPanel13.add(jPanel18);
+
+        jPanel19.setBackground(new java.awt.Color(245, 245, 245));
+
+        acceptEditContact.setText("Guardar Cambios");
+        acceptEditContact.setPreferredSize(new java.awt.Dimension(250, 50));
+        acceptEditContact.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                acceptEditContactActionPerformed(evt);
+            }
+        });
+        jPanel19.add(acceptEditContact);
+
+        deleteContact.setText("Eliminar");
+        deleteContact.setPreferredSize(new java.awt.Dimension(250, 50));
+        deleteContact.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                deleteContactActionPerformed(evt);
+            }
+        });
+        jPanel19.add(deleteContact);
+
+        jPanel13.add(jPanel19);
+
+        jPanel12.add(jPanel13);
 
         javax.swing.GroupLayout showContactDialogLayout = new javax.swing.GroupLayout(showContactDialog.getContentPane());
         showContactDialog.getContentPane().setLayout(showContactDialogLayout);
         showContactDialogLayout.setHorizontalGroup(
             showContactDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(showContactDialogLayout.createSequentialGroup()
-                .addComponent(jPanel10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 6, Short.MAX_VALUE))
+            .addComponent(jPanel12, javax.swing.GroupLayout.PREFERRED_SIZE, 722, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
         showContactDialogLayout.setVerticalGroup(
             showContactDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(showContactDialogLayout.createSequentialGroup()
-                .addComponent(jPanel10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+            .addComponent(jPanel12, javax.swing.GroupLayout.PREFERRED_SIZE, 355, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -524,15 +644,15 @@ public class MainMenu extends javax.swing.JFrame {
 
     private long getIdCountFromDatabase() {
         JSONObject jo = readFromDatabaseFile();
-        
-        long id = (long)jo.get("idCount");
+
+        long id = (long) jo.get("idCount");
         return id;
     }
-    
+
     // TODO Agregar ID para evitar problemas de consistencia
     private void addNewContactActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addNewContactActionPerformed
         getNewContactInfoFromFields();
-        long nextId = getIdCountFromDatabase(); 
+        long nextId = getIdCountFromDatabase();
         if (validateNewContactInfo()) {
             System.out.println("Informacion validada");
 
@@ -546,16 +666,16 @@ public class MainMenu extends javax.swing.JFrame {
             m.put("birthdayMonth", birthdayMonth);
 
             JSONObject currentDatabase = readFromDatabaseFile();
-            JSONArray currentArray = (JSONArray)currentDatabase.get("entries");
-            
+            JSONArray currentArray = (JSONArray) currentDatabase.get("entries");
+
             System.out.println("Current Array: " + currentArray.toJSONString());
             currentArray.add(m);
-            
+
             System.out.println("New Array: " + currentArray.toJSONString());
-            
+
             currentDatabase.clear();
             currentDatabase.put("entries", currentArray);
-            
+
             currentDatabase.put("idCount", nextId + 1);
             writeToDatabaseFile(currentDatabase);
             setContactListToDatabaseModel(getAllContacts());
@@ -574,6 +694,15 @@ public class MainMenu extends javax.swing.JFrame {
         phone = phoneField.getText();
         birthdayDay = birthdayDayField.getSelectedItem().toString();
         birthdayMonth = birthdayMonthField.getSelectedItem().toString();
+    }
+    
+    private void getEditContactInfoFromFields() {
+        name = showNameField.getText();
+        address = showAddressField.getText();
+        mail = showMailField.getText();
+        phone = showPhoneField.getText();
+        birthdayDay = showBirthdayDayField.getSelectedItem().toString();
+        birthdayMonth = showBirthdayMonthField.getSelectedItem().toString();
     }
 
     private boolean validateNewContactInfo() {
@@ -623,7 +752,7 @@ public class MainMenu extends javax.swing.JFrame {
 
     private void contactListMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_contactListMouseClicked
         // TODO add your handling code here:
-        JList list = (JList)evt.getSource();
+        JList list = (JList) evt.getSource();
         switch (evt.getClickCount()) {
             case 1:
                 System.out.println("Clickeaste una vez");
@@ -632,60 +761,200 @@ public class MainMenu extends javax.swing.JFrame {
                 System.out.println("Clickeaste dos veces");
                 list.locationToIndex(evt.getPoint());
                 System.out.println("En el elemento " + list.getSelectedValue());
-                setShowContactDialogData((String)list.getSelectedValue());
+                Object selectedValue = list.getSelectedValue();
+                
+                try {
+                        System.out.println("Si entro");
+                        setShowContactDialogData((String) list.getSelectedValue());
+                    
+
+                } catch (IllegalStateException e) {
+                    JOptionPane.showMessageDialog(this, "El Contacto no existe", "Error: Contacto no Encontrado", JOptionPane.ERROR_MESSAGE);
+                    System.out.println(e.getMessage());
+                    break;
+                } catch(NullPointerException e) {
+                    JOptionPane.showMessageDialog(this, "La lista de Contactos está vacía", "Error: Lista Vacía", JOptionPane.ERROR_MESSAGE);
+                    System.out.println("La lista de Contactos esta vacia");
+                    break;
+                }
                 showContactDialog.pack();
                 showContactDialog.setVisible(true);
+
                 break;
+
             default:
                 System.out.println("Clickeaste un chingo");
                 break;
         }
     }//GEN-LAST:event_contactListMouseClicked
 
-    private void setShowContactDialogData(String selectedValue) {
-        String regex ="(ID:)[0-9]+";
-        
-        Pattern r = Pattern.compile(regex);
-        Matcher m = r.matcher(selectedValue);
-        
-        if(m.find()) {
-            long id = Long.parseLong(m.group(0).split(":")[1]);
-            System.out.println("ID: " + id);
-            Map foundMap = searchDatabaseById(id);
+    private void showAddressFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showAddressFieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_showAddressFieldActionPerformed
+
+    private void showMailFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showMailFieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_showMailFieldActionPerformed
+
+    private void acceptEditContactActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_acceptEditContactActionPerformed
+        enableShowContactFields(false);
+        System.out.println("Boton Guardar Cambios presionado");
+        getEditContactInfoFromFields();
+            Map m = new LinkedHashMap(6);
+            m.put("id", showContactID);
+            m.put("name", name);
+            m.put("address", address);
+            m.put("phone", phone);
+            m.put("mail", mail);
+            m.put("birthdayDay", birthdayDay);
+            m.put("birthdayMonth", birthdayMonth);
             
-            showNameField.setText((String)foundMap.get("name"));
-            showAddressField.setText((String)foundMap.get("address"));
+        editContact(m);
+    }//GEN-LAST:event_acceptEditContactActionPerformed
+
+    private void deleteContactActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteContactActionPerformed
+        System.out.println("Boton Eliminar presionado");
+        try {
+            Map m = searchDatabaseById(showContactID);
+            int confirm = JOptionPane.showConfirmDialog(showContactDialog, "Está seguro de que desea eliminar el registro?","Confirmar Eliminación" , JOptionPane.YES_NO_OPTION);
+            if(confirm == 0) {
+                deleteContact(m);
+                setContactListToDatabaseModel(getAllContacts());
+                showContactDialog.setVisible(false);
+            }
+        } catch (IllegalStateException e) {
+            System.out.println(e.getMessage());
         }
-    }
-    
-    private Map searchDatabaseById(long id) {
+    }//GEN-LAST:event_deleteContactActionPerformed
+
+    private void editContact(Map objectToEdit) {
         JSONObject jo = readFromDatabaseFile();
         
-        JSONArray array = (JSONArray)jo.get("entries");
+        JSONArray array = (JSONArray) jo.get("entries");
+       
+        JSONArray newArray = (JSONArray) array.clone();
+        
+        int index = indexOfContactById((long)objectToEdit.get("id"));
+        
+        newArray.set(index, objectToEdit);
+        
+        jo.remove("entries");
+        jo.put("entries", newArray);
+        writeToDatabaseFile(jo);
+        setContactListToDatabaseModel(getAllContacts());
+        JOptionPane.showMessageDialog(showContactDialog, "El Contacto ha sido editado satisfactoriamente", "Contacto Editado", JOptionPane.INFORMATION_MESSAGE);
+    }
+    
+    private int indexOfContactById(long id) {
+        JSONObject jo = readFromDatabaseFile();
+        JSONArray array = (JSONArray) jo.get("entries");
         
         ListIterator li = array.listIterator();
         boolean found = false;
-        Map m = new LinkedHashMap<>();
         
-        while(li.hasNext() && !found) {
-            m = (Map)li.next();
-            
-            long mapId = (long)m.get("id");
+        Map m;
+        while (li.hasNext() && !found) {
+            m = (Map) li.next();
+
+            long mapId = (long) m.get("id");
             System.out.println("Map ID: " + mapId);
             System.out.println("Contrasting ID: " + id);
-            if(mapId == id) {
+            if (mapId == id) {
+                return array.indexOf(m);
+            }
+        }
+        return -1;
+    }
+    private void deleteContact(Map objectToDelete) {
+        JSONObject jo = readFromDatabaseFile();
+
+        JSONArray array = (JSONArray) jo.get("entries");
+        JSONArray newArray = (JSONArray) array.clone();
+
+        if (newArray.remove(objectToDelete)) {
+            System.out.println("Se removio");
+        } else {
+            System.out.println("No se removio");
+        }
+        jo.remove("entries");
+        jo.put("entries", newArray);
+        writeToDatabaseFile(jo);
+    }
+
+    private void showBirthdayMonthFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showBirthdayMonthFieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_showBirthdayMonthFieldActionPerformed
+
+    private void editContactActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editContactActionPerformed
+        System.out.println("Boton Editar presionado");
+        enableShowContactFields(true);
+    }//GEN-LAST:event_editContactActionPerformed
+
+    private void enableShowContactFields(boolean enabled) {
+        showNameField.setEditable(enabled);
+        showAddressField.setEditable(enabled);
+        showPhoneField.setEditable(enabled);
+        showMailField.setEditable(enabled);
+        showBirthdayMonthField.setEnabled(enabled);
+        showBirthdayDayField.setEnabled(enabled);
+    }
+
+    private void setShowContactDialogData(String selectedValue) throws IllegalStateException {
+        String regex = "(ID:)[0-9]+";
+
+        Pattern r = Pattern.compile(regex);
+        Matcher m = r.matcher(selectedValue);
+
+        if (m.find()) {
+            long id = Long.parseLong(m.group(0).split(":")[1]);
+            System.out.println("ID: " + id);
+            Map foundMap = searchDatabaseById(id);
+
+            showContactID = id;
+
+            showNameField.setText((String) foundMap.get("name"));
+            showAddressField.setText((String) foundMap.get("address"));
+            showMailField.setText((String) foundMap.get("mail"));
+            showPhoneField.setText((String) foundMap.get("phone"));
+            showBirthdayDayField.setSelectedItem(foundMap.get("birthdayDay"));
+            showBirthdayMonthField.setSelectedItem(foundMap.get("birthdayMonth"));
+        }
+    }
+
+    private Map searchDatabaseById(long id) {
+        JSONObject jo = readFromDatabaseFile();
+
+        JSONArray array = (JSONArray) jo.get("entries");
+
+        ListIterator li = array.listIterator();
+        boolean found = false;
+        Map m = new LinkedHashMap<>();
+
+        while (li.hasNext() && !found) {
+            m = (Map) li.next();
+
+            long mapId = (long) m.get("id");
+            System.out.println("Map ID: " + mapId);
+            System.out.println("Contrasting ID: " + id);
+            if (mapId == id) {
                 found = true;
             }
-            
+
         }
-        
-        return m;
+
+        if (found) {
+            return m;
+        } else {
+            throw new IllegalStateException("Contact with ID = " + id + " couldn't be found");
+        }
+
     }
+
     /**
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        
+
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
@@ -708,24 +977,33 @@ public class MainMenu extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton acceptEditContact;
     private javax.swing.JButton addContact;
     private javax.swing.JDialog addContactDialog;
     private javax.swing.JButton addNewContact;
     private javax.swing.JTextField addressField;
     private javax.swing.JLabel addressLabel;
+    private javax.swing.JLabel addressLabel1;
     private javax.swing.JComboBox<String> birthdayDayField;
     private javax.swing.JLabel birthdayLabel;
+    private javax.swing.JLabel birthdayLabel1;
     private javax.swing.JComboBox<String> birthdayMonthField;
     private javax.swing.JList<String> contactList;
+    private javax.swing.JButton deleteContact;
+    private javax.swing.JButton editContact;
     private javax.swing.JLabel instructions;
     private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel10;
-    private javax.swing.JPanel jPanel11;
+    private javax.swing.JPanel jPanel12;
+    private javax.swing.JPanel jPanel13;
+    private javax.swing.JPanel jPanel14;
+    private javax.swing.JPanel jPanel15;
+    private javax.swing.JPanel jPanel16;
+    private javax.swing.JPanel jPanel17;
+    private javax.swing.JPanel jPanel18;
+    private javax.swing.JPanel jPanel19;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
@@ -737,13 +1015,21 @@ public class MainMenu extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextField mailField;
     private javax.swing.JLabel mailLabel;
+    private javax.swing.JLabel mailLabel1;
     private javax.swing.JTextField nameField;
     private javax.swing.JLabel nameLabel;
+    private javax.swing.JLabel nameLabel1;
     private javax.swing.JTextField phoneField;
     private javax.swing.JLabel phoneLabel;
+    private javax.swing.JLabel phoneLabel1;
     private javax.swing.JTextField showAddressField;
+    private javax.swing.JComboBox<String> showBirthdayDayField;
+    private javax.swing.JComboBox<String> showBirthdayMonthField;
     private javax.swing.JDialog showContactDialog;
+    private javax.swing.JTextField showMailField;
     private javax.swing.JTextField showNameField;
+    private javax.swing.JTextField showPhoneField;
     private javax.swing.JLabel title;
+    private javax.swing.JLabel title1;
     // End of variables declaration//GEN-END:variables
 }
