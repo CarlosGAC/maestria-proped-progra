@@ -11,22 +11,22 @@ import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
 @NoArgsConstructor
-public class Persona {
+public class ContactEntry {
 
     @Getter
     private long id;
     
     @Getter
-    private String nombre;
+    private String name;
     
     @Getter
-    private String direccion;
+    private String address;
 
     @Getter
-    private String telefono;
+    private String phone;
 
     @Getter
-    private String direccionElectronica;
+    private String mailAddress;
 
     @Getter
     private String birthdayDay;

@@ -139,9 +139,6 @@
           <Properties>
             <Property name="name" type="java.lang.String" value="" noResource="true"/>
           </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="userFieldActionPerformed"/>
-          </Events>
         </Component>
         <Component class="javax.swing.JPasswordField" name="passwordField">
         </Component>
